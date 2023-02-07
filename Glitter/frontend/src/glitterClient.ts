@@ -90,7 +90,7 @@ function hideModal() {
  *
  */
 function getGlittsFromBackend() {
-  fetch("http://localhost:4000/glitts")
+  fetch("http://localhost:3000/glitts")
     .then((res) => res.json())
     .then((json) => {
       const glitts = json.map((glitt) => new Glitt(glitt));
@@ -111,7 +111,7 @@ function postGlittToBackend(glittName, glittText) {
     }),
   };
 
-  fetch("http://localhost:4000/glitts", fetchConfig).then((res) => {
+  fetch("http://localhost:3000/glitts", fetchConfig).then((res) => {
     if (res.status === 201) {
       // @ts-ignore
       UIkit.notification({
