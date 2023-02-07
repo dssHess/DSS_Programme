@@ -197,5 +197,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,python
-node_modules
 dist 
+node_modules
+.parcel-cache
