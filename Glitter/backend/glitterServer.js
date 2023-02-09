@@ -1,10 +1,18 @@
-const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const { Client } = require("pg");
 
 const app = express();
-const port = 3000;
-const glittsFile = "./glitts.json";
+const port = 4000;
+const pgClient = new Client({
+  user: "postgres",
+  database: "glitter",
+  password: "postgres",
+  port: 5432,
+  host: "localhost"
+})
+
+pgClient.connect();
 
 /**
  * App middlewares.
@@ -29,33 +37,39 @@ class Glitt {
   }
 }
 
-function readGlittsFromFile() {
-  try {
-    const dataBuffer = fs.readFileSync(glittsFile);
-    const data = dataBuffer.toString();
-    const json = JSON.parse(data);
-    return json;
-  } catch (e) {
-    return [];
-  }
+/**
+ * Handler.
+ * 
+ * @param {*} request 
+ * @param {*} response 
+ */
+function getGlitts(request, response) {
+  pgClient.query("SELECT * FROM glitts;", (err, results) => {
+    const glitts = []
+    results.rows.forEach(g => glitts.push(new Glitt(g)))
+    response.send(glitts);
+  })
+}
+
+function postGlitts(request, response) {
+  const glitt = new Glitt(request.body);
+  console.log(glitt)
+  
+  const queryString = "INSERT INTO glitts (\"user\", text, datetime) VALUES ($1, $2, $3)"
+  pgClient.query(queryString, [glitt.user, glitt.text, glitt.datetime], (err, results) => {
+    if (err) {
+      response.status(400).send(err.stack);
+    }
+      response.status(201).send(glitt);
+  })
 }
 
 /**
  * Routes.
  *
  */
-app.get("/glitts", (request, response) => {
-  const glitts = readGlittsFromFile().reverse();
-  response.send(glitts);
-});
-
-app.post("/glitts", (request, response) => {
-  const glitts = readGlittsFromFile();
-  const glitt = new Glitt(request.body);
-  glitts.push(glitt);
-  fs.writeFileSync(glittsFile, JSON.stringify(glitts));
-  response.status(201).send(glitt);
-});
+app.get("/glitts", getGlitts);
+app.post("/glitts", postGlitts);
 
 /**
  * Start the app.
