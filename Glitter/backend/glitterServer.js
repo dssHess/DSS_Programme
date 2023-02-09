@@ -37,6 +37,20 @@ class Glitt {
   }
 }
 
+class User {
+  id;
+  firstName;
+  lastName;
+  username;
+  password;
+}
+
+class Session {
+  id;
+  user_id;
+  token;
+}
+
 /**
  * Handler.
  * 
@@ -64,12 +78,67 @@ function postGlitts(request, response) {
   })
 }
 
+function postSession(request, response) {
+  const {username, password} = request.body;
+
+  if (!username || !password) {
+    response.status(400).send("Please enter username and password!");
+  }
+
+  // 1. Hole den User aus der Datenbank
+  const queryString1 = "select * from users where users.user=$1"
+    
+  // 2. Wenn der User nicht in der Datenbank drin, gib ein 401 zurück. 
+  pgClient.query(queryString1, [username], (err, results) => {
+    if (err) {
+      response.status(400).send(err.stack);  
+    }
+    
+    if (results.rows.length===0){
+      response.status(401).send(err.stack);  
+    }
+
+    // 3. Wenn der User in der Datenbank drin, prüfe das Password!
+    if (password!==results.rows[0].password){
+       response.status(401).send(err.stack); 
+      }
+  // 4. Wenn das Passwort übereinstimmt, erstelle eine Session (+ token Kryrographisch)
+      const session_neu = new Session()
+      session_neu.token = "BLUB"
+      const queryString2 = "select * from users where password = '$1' "
+
+
+
+
+
+
+
+
+    pgClient.query(queryString, [username], (err, results) => {
+      if (results = "")  {
+        response.status(400).send(err.stack);  
+      }
+        
+      response.status(201).send(glitt);
+    })
+  })
+
+    
+  // 5. Speichere die Session.
+  // 6. Gib den Token der Session an das Frontend zurück. 
+}
+
 /**
  * Routes.
  *
  */
 app.get("/glitts", getGlitts);
 app.post("/glitts", postGlitts);
+
+app.post("/sessions", postSession);
+// app.delete("/session", deleteSession);
+
+// app.get("/sessions/check", checkValidSession);
 
 /**
  * Start the app.
