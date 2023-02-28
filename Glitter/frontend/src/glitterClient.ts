@@ -1,12 +1,12 @@
 class Glitt {
   id: number;
-  user: string;
+  name: string;
   text: string;
   datetime: string;
 
   constructor(data) {
     this.id = data.id;
-    this.user = data.user;
+    this.name = data.name;
     this.text = data.text;
     this.datetime =
       new Date(data.datetime).toLocaleDateString() +
@@ -24,7 +24,7 @@ function renderCard(glitt: Glitt) {
                     <img class="uk-border-circle" width="40" height="40" src="https://i.pravatar.cc/40" alt="Avatar">
                 </div>
                 <div class="uk-width-expand">
-                    <h3 class="uk-card-title uk-margin-remove-bottom">${glitt.user}</h3>
+                    <h3 class="uk-card-title uk-margin-remove-bottom">${glitt.name}</h3>
                     <p class="uk-text-meta uk-margin-remove-top"><time>${glitt.datetime}</time></p>
                 </div>
             </div>
@@ -105,7 +105,7 @@ function postGlittToBackend(glittName, glittText) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      user: glittName,
+      name: glittName,
       text: glittText,
       datetime: new Date(),
     }),
